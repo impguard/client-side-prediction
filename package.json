@@ -1,0 +1,13 @@
+{
+  "name": "client-side-prediction",
+  "version": "1.0.0",
+  "description": "Simple app demonstrating client side prediction.",
+  "private": true,
+  "repository": "https://github.com/impguard/client-side-prediction",
+  "author": "kwu <contact@kevinwu.io>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "webpack": "^4.8.2"
+  }
+}
