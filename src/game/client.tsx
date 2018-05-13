@@ -24,6 +24,7 @@ export default class Client {
   intervalId: number
   lastTick: number
   playing: boolean = false
+  prediction: boolean = false
 
   state: GameState = {
     player: new Player(new Vector2(0, 0)),
@@ -106,6 +107,7 @@ export default class Client {
   }
 
   send(state: GameState) {
+    // Choose either reconciliation or just source of truth
     this.state.player.position = state.player.position
 
     values(this.state.projectiles).forEach(projectile => {
@@ -126,7 +128,9 @@ export default class Client {
     this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     values(this.state.projectiles).forEach(projectile => {
-      if (!projectile.valid) return
+      // Either wait for server to validate before render or...
+      // Render anyways regardless of valid or not
+      // if (!projectile.valid) return
 
       const x = projectile.position.x - PROJECTILE_WIDTH / 2
       const y = projectile.position.y - PROJECTILE_HEIGHT / 2
@@ -139,6 +143,13 @@ export default class Client {
     this.lastTick = nowish
 
     this.render()
+
+    if (this.prediction) {
+      this.state.player.tick(dt)
+      values(this.state.projectiles).forEach(projectile => {
+        projectile.tick(dt)
+      })
+    }
 
     const state = cloneDeep(this.state)
     window.setTimeout(() => {
