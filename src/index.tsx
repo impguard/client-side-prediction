@@ -1,10 +1,11 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-import App from './components/App'
+import Game from './components/Game'
+import './style.css'
 
 
-ReactDOM.render(
-  <App message="My friends!" />,
-  document.getElementById('root')
-)
+const root = document.createElement('div')
+document.body.appendChild(root)
+
+ReactDOM.render(<Game />, root)

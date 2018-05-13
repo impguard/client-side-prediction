@@ -1,0 +1,9 @@
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+.game {
+  border: black 5px solid;
+  margin: 15px;
+}

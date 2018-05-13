@@ -1,3 +1,7 @@
 # Build files
 
 node_modules
+
+# Error logs
+
+yarn-error.log
