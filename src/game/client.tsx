@@ -8,33 +8,32 @@ import {
   PLAYER_SPEED,
   KEYCODES,
 } from '../constants'
+import Server from './server'
 import Player from './player'
 import Projectile from './projectile'
+import { GameState } from './types'
 import { Vector2 } from 'three'
-import { includes } from 'lodash/fp'
+import { has, values, includes, cloneDeep } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 
-
-interface ClientState {
-  player: Player
-  projectiles: Projectile[]
-}
 
 export default class Client {
   canvas: HTMLCanvasElement
   ctx: CanvasRenderingContext2D
+  server: Server
   intervalId: number
   lastTick: number
   playing: boolean = false
 
-  state: ClientState = {
+  state: GameState = {
     player: new Player(new Vector2(0, 0)),
-    projectiles: [],
+    projectiles: {}
   }
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
+
     document.addEventListener('keydown', this.keydown.bind(this))
     document.addEventListener('keyup', this.keyup.bind(this))
     document.addEventListener('click', this.click.bind(this))
@@ -46,14 +45,10 @@ export default class Client {
 
   reset() {
     this.clear()
-    const x = (GAME_WIDTH - PLAYER_WIDTH) / 2
-    const y = (GAME_HEIGHT - PLAYER_HEIGHT) / 2
-
-    this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     this.state.player.position.set(
-      x + PLAYER_WIDTH / 2,
-      y + PLAYER_HEIGHT / 2
+      GAME_WIDTH / 2,
+      GAME_HEIGHT / 2
     )
   }
 
@@ -103,7 +98,24 @@ export default class Client {
 
     const projectile = new Projectile(uuid(), this.state.player.position, direction)
 
-    this.state.projectiles.push(projectile)
+    this.state.projectiles[projectile.id] = projectile
+  }
+
+  connect(server: Server) {
+    this.server = server
+  }
+
+  send(state: GameState) {
+    this.state.player.position = state.player.position
+
+    values(this.state.projectiles).forEach(projectile => {
+      if (!projectile.valid || has(projectile.id, state.projectiles))
+        return
+
+      delete this.state.projectiles[projectile.id]
+    })
+
+    Object.assign(this.state.projectiles, state.projectiles)
   }
 
   render() {
@@ -113,33 +125,25 @@ export default class Client {
     const y = this.state.player.position.y - PLAYER_HEIGHT / 2
     this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
-    this.state.projectiles.forEach(projectile => {
+    values(this.state.projectiles).forEach(projectile => {
+      if (!projectile.valid) return
+
       const x = projectile.position.x - PROJECTILE_WIDTH / 2
       const y = projectile.position.y - PROJECTILE_HEIGHT / 2
       this.ctx.fillRect(x, y, PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
     })
   }
 
-  clean() {
-    const filteredProjectiles = this.state.projectiles.filter(projectile =>
-      !(projectile.position.x < -PROJECTILE_WIDTH
-      || projectile.position.x > GAME_WIDTH + PROJECTILE_WIDTH
-      || projectile.position.y < -PROJECTILE_HEIGHT
-      || projectile.position.y > GAME_HEIGHT + PROJECTILE_HEIGHT)
-    )
-
-    this.state.projectiles = filteredProjectiles
-  }
-
   tick(nowish: number) {
     const dt = nowish - this.lastTick
     this.lastTick = nowish
 
-    this.state.player.tick(dt)
-    this.state.projectiles.forEach(projectile => projectile.tick(dt))
-
     this.render()
-    this.clean()
+
+    const state = cloneDeep(this.state)
+    window.setTimeout(() => {
+      this.server.send(state)
+    }, 100)
 
     if (this.playing) {
       window.requestAnimationFrame(this.tick.bind(this))

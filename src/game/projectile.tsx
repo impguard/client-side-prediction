@@ -12,6 +12,7 @@ export default class Projectile {
   id: string
   position: Vector2
   direction: Vector2
+  valid: boolean = false
 
   constructor(id: string, position: Vector2, direction: Vector2) {
     this.id = id
@@ -20,6 +21,10 @@ export default class Projectile {
       .clone()
       .normalize()
       .multiplyScalar(PROJECTILE_SPEED)
+  }
+
+  setValid() {
+    this.valid = true
   }
 
   tick(dt: number) {
