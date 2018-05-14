@@ -62,9 +62,7 @@ export default class Client {
     this.playing = false
   }
 
-  keypress(event: KeyboardEvent, isPressed: boolean) {
-    const key = event.keyCode || event.which
-
+  keypress(key: number, isPressed: boolean) {
     if (includes(key, KEYCODES.LEFT)) {
       this.state.player.controls.left = isPressed
     } else if (includes(key, KEYCODES.RIGHT)) {
@@ -73,13 +71,6 @@ export default class Client {
       this.state.player.controls.up = isPressed
     } else if (includes(key, KEYCODES.DOWN)) {
       this.state.player.controls.down = isPressed
-    } else if (includes(key, KEYCODES.Q)) {
-      // TODO: what is going on here?
-      if (this.state.player.speed === PLAYER_SPEED) {
-        this.state.player.speed = PLAYER_SPEED * 2
-      } else {
-        this.state.player.speed = PLAYER_SPEED
-      }
     } else {
       return
     }
@@ -88,11 +79,21 @@ export default class Client {
   }
 
   keydown(event: KeyboardEvent) {
-    this.keypress(event, true)
+    const key = event.keyCode || event.which
+    this.keypress(key, true)
+
+    if (includes(key, KEYCODES.Q)) {
+      if (this.state.player.speed === PLAYER_SPEED) {
+        this.state.player.speed = PLAYER_SPEED * 2
+      } else {
+        this.state.player.speed = PLAYER_SPEED
+      }
+    }
   }
 
   keyup(event: KeyboardEvent) {
-    this.keypress(event, false)
+    const key = event.keyCode || event.which
+    this.keypress(key, false)
   }
 
   click(event: MouseEvent) {
@@ -114,7 +115,7 @@ export default class Client {
 
   send(state: GameState) {
     if (window.config.prediction) {
-      this.state.player.reconcile(state.player.timestamp, state.player.position)
+      this.state.player.reconcile(state.player.frame, state.player.position)
     } else {
       this.state.player.position = state.player.position
     }
@@ -128,7 +129,7 @@ export default class Client {
 
     values(state.projectiles).forEach(projectile => {
       if (window.config.prediction && has(projectile.id, this.state.projectiles)) {
-        this.state.projectiles[projectile.id].reconcile(projectile.timestamp, projectile.position)
+        this.state.projectiles[projectile.id].reconcile(projectile.frame, projectile.position)
       } else {
         this.state.projectiles[projectile.id] = projectile
       }
@@ -155,14 +156,16 @@ export default class Client {
     const dt = timestamp - this.lastTick
     this.lastTick = timestamp
 
-    this.render()
-
     if (window.config.prediction) {
-      this.state.player.tick(timestamp, dt, window.config.prediction)
+      this.state.player.tick(dt, window.config.prediction)
+      this.state.player.incrementFrame()
       values(this.state.projectiles).forEach(projectile => {
-        projectile.tick(timestamp, dt, window.config.prediction)
+        projectile.tick(dt, window.config.prediction)
+        projectile.incrementFrame()
       })
     }
+
+    this.render()
 
     const state = cloneDeep(this.state)
     window.setTimeout(() => {

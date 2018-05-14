@@ -13,9 +13,9 @@ import { pickBy, values, keys, has, cloneDeep } from 'lodash/fp'
 
 
 export default class Server {
+  client: Client
   lastTick: number
   playing: boolean = false
-  client: Client
 
   state: GameState = {
     player: new Player(),
@@ -52,12 +52,14 @@ export default class Server {
 
   send(state: GameState) {
     this.state.player.controls = state.player.controls
+    this.state.player.frame = state.player.frame
 
     values(state.projectiles).forEach(projectile => {
-      if (projectile.valid || has(projectile.id, this.state.projectiles))
-        return
+      if (!projectile.valid && !has(projectile.id, this.state.projectiles)) {
+        this.state.projectiles[projectile.id] = projectile
+      }
 
-      this.state.projectiles[projectile.id] = projectile
+      this.state.projectiles[projectile.id].frame = projectile.frame
     })
   }
 
@@ -65,10 +67,10 @@ export default class Server {
     const dt = timestamp - this.lastTick
     this.lastTick = timestamp
 
-    this.state.player.tick(timestamp, dt)
+    this.state.player.tick(dt)
     values(this.state.projectiles).forEach(projectile => {
       projectile.setValid()
-      projectile.tick(timestamp, dt)
+      projectile.tick(dt)
     })
 
     const state = cloneDeep(this.state)

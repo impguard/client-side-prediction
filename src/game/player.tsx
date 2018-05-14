@@ -19,7 +19,7 @@ export default class Player extends Movable {
   controls: Controls = { up: false, down: false, left: false, right: false }
   speed = PLAYER_SPEED
 
-  tick(timestamp: number, dt: number, save: boolean = false) {
+  tick(dt: number, save: boolean = false) {
     const direction = new Vector2(
       (this.controls.left ? -1 : 0) +
       (this.controls.right ? 1 : 0),
@@ -27,7 +27,8 @@ export default class Player extends Movable {
       (this.controls.down ? 1 : 0)
     )
 
-    this.move(timestamp, dt, direction, this.speed, save)
+    const delta = direction.normalize().multiplyScalar(this.speed * dt)
+    this.move(this.position, delta, save)
 
     this.position.clamp(
       new Vector2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2),

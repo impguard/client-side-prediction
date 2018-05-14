@@ -19,14 +19,15 @@ export default class Projectile extends Movable {
 
     this.id = id
     this.position = position.clone()
-    this.direction = direction.clone()
+    this.direction = direction.clone().normalize()
   }
 
   setValid() {
     this.valid = true
   }
 
-  tick(timestamp: number, dt: number, save: boolean = false) {
-    this.move(timestamp, dt, this.direction, PROJECTILE_SPEED, save)
+  tick(dt: number, save: boolean = false) {
+    const delta = this.direction.clone().multiplyScalar(PROJECTILE_SPEED * dt)
+    this.move(this.position, delta, save)
   }
 }
