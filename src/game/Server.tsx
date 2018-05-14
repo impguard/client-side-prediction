@@ -15,7 +15,10 @@ export default class Server extends Renderer {
     this.state.player.frame = state.player.frame
 
     values(state.projectiles).forEach(projectile => {
-      if (!!this.state.projectiles[projectile.id]) {
+      const isFound = !!this.state.projectiles[projectile.id]
+      const isDeleted = projectile.deleted
+
+      if (isFound || isDeleted) {
         return
       }
 
@@ -26,13 +29,13 @@ export default class Server extends Renderer {
   protected update(dt: number) {
     this.state.player.update(dt)
     values(this.state.projectiles).forEach(projectile => {
-      projectile.setValid()
       projectile.update(dt)
+      projectile.updateDelete()
     })
 
-    const serverState = cloneDeep(this.state)
+    const state = cloneDeep(this.state)
     window.setTimeout(() => {
-      this.client.send(serverState)
+      this.client.send(state)
     }, window.config.serverOWD)
   }
 }

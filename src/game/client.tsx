@@ -8,6 +8,7 @@ import Projectile from './Projectile'
 import { GameState } from './types'
 import { Vector2 } from 'three'
 import { values, includes, cloneDeep } from 'lodash/fp'
+import { v4 as uuid } from 'uuid'
 
 export default class Client extends Renderer {
   public server: Server
@@ -32,11 +33,19 @@ export default class Client extends Renderer {
     }
 
     values(state.projectiles).forEach(projectile => {
-      if (!this.state.projectiles[projectile.id]) {
+      const isMissing = !this.state.projectiles[projectile.id]
+      const isDeleted = projectile.deleted
+
+      if (isMissing && isDeleted) {
+        return
+      }
+
+      if (isMissing) {
         this.state.projectiles[projectile.id] = projectile
       }
 
       if (window.config.prediction) {
+        this.state.projectiles[projectile.id].deleted = projectile.deleted
         this.state.projectiles[projectile.id].reconcile(projectile.frame, projectile.position)
       } else {
         this.state.projectiles[projectile.id] = projectile
