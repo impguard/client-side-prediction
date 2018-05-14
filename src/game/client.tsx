@@ -165,12 +165,12 @@ export default class Client {
       })
     }
 
-    this.render()
-
     const state = cloneDeep(this.state)
     window.setTimeout(() => {
       this.server.send(state)
     }, window.config.clientOWD)
+
+    this.render()
 
     if (this.playing) {
       window.requestAnimationFrame(this.tick.bind(this))

@@ -23,17 +23,18 @@ class Game extends React.Component {
     super(props)
 
     window.config = {
-      serverOWD: 100,
-      clientOWD: 100,
+      serverOWD: 500,
+      clientOWD: 500,
       prediction: true,
     }
   }
 
   componentDidMount() {
-    const canvas = this.refs.game as HTMLCanvasElement
+    const oneCanvas = this.refs.player1 as HTMLCanvasElement
+    const serverCanvas = this.refs.server as HTMLCanvasElement
 
-    this.server = new Server()
-    this.client = new Client(canvas)
+    this.server = new Server(serverCanvas)
+    this.client = new Client(oneCanvas)
 
     this.server.connect(this.client)
     this.client.connect(this.server)
@@ -50,11 +51,20 @@ class Game extends React.Component {
 
   render() {
     return (
-      <canvas
-        ref="game"
-        className="game"
-        width={GAME_WIDTH}
-        height={GAME_HEIGHT} />
+      <div>
+        <div className="title">Player 1</div>
+        <canvas
+          ref="player1"
+          className="game"
+          width={GAME_WIDTH}
+          height={GAME_HEIGHT} />
+        <div className="title">Server</div>
+        <canvas
+          ref="server"
+          className="game"
+          width={GAME_WIDTH}
+          height={GAME_HEIGHT} />
+      </div>
     )
   }
 }
