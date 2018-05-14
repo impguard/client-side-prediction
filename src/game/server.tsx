@@ -11,6 +11,7 @@ import {
 import Client from './Client'
 import Player from './Player'
 import Projectile from './Projectile'
+import { drawGrid } from '../util'
 import { GameState } from './types'
 import { Vector2 } from 'three'
 import { pickBy, values, keys, has, cloneDeep } from 'lodash/fp'
@@ -80,6 +81,8 @@ export default class Server {
 
   render() {
     this.clear()
+
+    drawGrid(this.ctx, GAME_WIDTH, GAME_HEIGHT)
 
     const x = this.state.player.position.x - PLAYER_WIDTH / 2
     const y = this.state.player.position.y - PLAYER_HEIGHT / 2
