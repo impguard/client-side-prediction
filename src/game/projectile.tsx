@@ -6,29 +6,27 @@ import {
   PLAYER_SPEED,
   PROJECTILE_SPEED,
 } from '../constants'
+import Movable from './Movable'
 import { Vector2 } from 'three'
 
-export default class Projectile {
+export default class Projectile extends Movable {
   id: string
-  position: Vector2
   direction: Vector2
   valid: boolean = false
 
   constructor(id: string, position: Vector2, direction: Vector2) {
+    super()
+
     this.id = id
     this.position = position.clone()
-    this.direction = direction
-      .clone()
-      .normalize()
-      .multiplyScalar(PROJECTILE_SPEED)
+    this.direction = direction.clone()
   }
 
   setValid() {
     this.valid = true
   }
 
-  tick(dt: number) {
-    const deltaPos = this.direction.clone().multiplyScalar(dt)
-    this.position.add(deltaPos)
+  tick(timestamp: number, dt: number, save: boolean = false) {
+    this.move(timestamp, dt, this.direction, PROJECTILE_SPEED, save)
   }
 }

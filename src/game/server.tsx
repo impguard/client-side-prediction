@@ -4,9 +4,9 @@ import {
   PROJECTILE_WIDTH,
   PROJECTILE_HEIGHT,
 } from '../constants'
-import Client from './client'
-import Player from './player'
-import Projectile from './projectile'
+import Client from './Client'
+import Player from './Player'
+import Projectile from './Projectile'
 import { GameState } from './types'
 import { Vector2 } from 'three'
 import { pickBy, values, keys, has, cloneDeep } from 'lodash/fp'
@@ -18,7 +18,7 @@ export default class Server {
   client: Client
 
   state: GameState = {
-    player: new Player(new Vector2(0, 0)),
+    player: new Player(),
     projectiles: {}
   }
 
@@ -61,20 +61,20 @@ export default class Server {
     })
   }
 
-  tick(nowish: number) {
-    const dt = nowish - this.lastTick
-    this.lastTick = nowish
+  tick(timestamp: number) {
+    const dt = timestamp - this.lastTick
+    this.lastTick = timestamp
 
-    this.state.player.tick(dt)
+    this.state.player.tick(timestamp, dt)
     values(this.state.projectiles).forEach(projectile => {
       projectile.setValid()
-      projectile.tick(dt)
+      projectile.tick(timestamp, dt)
     })
 
     const state = cloneDeep(this.state)
     window.setTimeout(() => {
       this.client.send(state)
-    }, 100)
+    }, window.config.serverOWD)
 
     this.clean()
 

@@ -7,12 +7,27 @@ declare global {
   interface Window {
     client: Client
     server: Server
+    config: {
+      serverOWD: number
+      clientOWD: number
+      prediction: boolean
+    }
   }
 }
 
 class Game extends React.Component {
   client: Client
   server: Server
+
+  constructor(props: any) {
+    super(props)
+
+    window.config = {
+      serverOWD: 100,
+      clientOWD: 100,
+      prediction: true,
+    }
+  }
 
   componentDidMount() {
     const canvas = this.refs.game as HTMLCanvasElement

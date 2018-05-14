@@ -5,6 +5,7 @@ import {
   PLAYER_HEIGHT,
   PLAYER_SPEED,
 } from '../constants'
+import Movable from './Movable'
 import { Vector2 } from 'three'
 
 interface Controls {
@@ -14,24 +15,20 @@ interface Controls {
   right: boolean
 }
 
-export default class Player {
-  position: Vector2
+export default class Player extends Movable {
   controls: Controls = { up: false, down: false, left: false, right: false }
+  speed = PLAYER_SPEED
 
-  constructor(position: Vector2) {
-    this.position = position.clone()
-  }
-
-  tick(dt: number) {
-    const deltaPos = new Vector2(
+  tick(timestamp: number, dt: number, save: boolean = false) {
+    const direction = new Vector2(
       (this.controls.left ? -1 : 0) +
       (this.controls.right ? 1 : 0),
       (this.controls.up ? -1 : 0) +
       (this.controls.down ? 1 : 0)
     )
 
-    deltaPos.normalize().multiplyScalar(PLAYER_SPEED * dt)
-    this.position.add(deltaPos)
+    this.move(timestamp, dt, direction, this.speed, save)
+
     this.position.clamp(
       new Vector2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2),
       new Vector2(GAME_WIDTH - PLAYER_WIDTH / 2, GAME_HEIGHT - PLAYER_HEIGHT / 2)

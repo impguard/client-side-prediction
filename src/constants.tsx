@@ -13,4 +13,5 @@ export const KEYCODES = {
   UP: [38, 87],
   RIGHT: [39, 68],
   DOWN: [40, 83],
+  Q: [81],
 }

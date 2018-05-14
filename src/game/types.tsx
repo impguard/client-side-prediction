@@ -1,8 +1,10 @@
-import Player from './player'
-import Projectile from './projectile'
+import Player from './Player'
+import Projectile from './Projectile'
 
 export interface GameState {
   player: Player
-  projectiles: any
+  projectiles: {
+    [any: string]: Projectile
+  }
 }
 

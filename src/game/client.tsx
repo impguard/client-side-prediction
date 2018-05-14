@@ -8,9 +8,9 @@ import {
   PLAYER_SPEED,
   KEYCODES,
 } from '../constants'
-import Server from './server'
-import Player from './player'
-import Projectile from './projectile'
+import Server from './Server'
+import Player from './Player'
+import Projectile from './Projectile'
 import { GameState } from './types'
 import { Vector2 } from 'three'
 import { has, values, includes, cloneDeep } from 'lodash/fp'
@@ -24,10 +24,9 @@ export default class Client {
   intervalId: number
   lastTick: number
   playing: boolean = false
-  prediction: boolean = false
 
   state: GameState = {
-    player: new Player(new Vector2(0, 0)),
+    player: new Player(),
     projectiles: {}
   }
 
@@ -74,6 +73,13 @@ export default class Client {
       this.state.player.controls.up = isPressed
     } else if (includes(key, KEYCODES.DOWN)) {
       this.state.player.controls.down = isPressed
+    } else if (includes(key, KEYCODES.Q)) {
+      // TODO: what is going on here?
+      if (this.state.player.speed === PLAYER_SPEED) {
+        this.state.player.speed = PLAYER_SPEED * 2
+      } else {
+        this.state.player.speed = PLAYER_SPEED
+      }
     } else {
       return
     }
@@ -107,8 +113,11 @@ export default class Client {
   }
 
   send(state: GameState) {
-    // Choose either reconciliation or just source of truth
-    this.state.player.position = state.player.position
+    if (window.config.prediction) {
+      this.state.player.reconcile(state.player.timestamp, state.player.position)
+    } else {
+      this.state.player.position = state.player.position
+    }
 
     values(this.state.projectiles).forEach(projectile => {
       if (!projectile.valid || has(projectile.id, state.projectiles))
@@ -117,7 +126,13 @@ export default class Client {
       delete this.state.projectiles[projectile.id]
     })
 
-    Object.assign(this.state.projectiles, state.projectiles)
+    values(state.projectiles).forEach(projectile => {
+      if (window.config.prediction && has(projectile.id, this.state.projectiles)) {
+        this.state.projectiles[projectile.id].reconcile(projectile.timestamp, projectile.position)
+      } else {
+        this.state.projectiles[projectile.id] = projectile
+      }
+    })
   }
 
   render() {
@@ -128,9 +143,7 @@ export default class Client {
     this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     values(this.state.projectiles).forEach(projectile => {
-      // Either wait for server to validate before render or...
-      // Render anyways regardless of valid or not
-      // if (!projectile.valid) return
+      if (!window.config.prediction && !projectile.valid) return
 
       const x = projectile.position.x - PROJECTILE_WIDTH / 2
       const y = projectile.position.y - PROJECTILE_HEIGHT / 2
@@ -138,23 +151,23 @@ export default class Client {
     })
   }
 
-  tick(nowish: number) {
-    const dt = nowish - this.lastTick
-    this.lastTick = nowish
+  tick(timestamp: number) {
+    const dt = timestamp - this.lastTick
+    this.lastTick = timestamp
 
     this.render()
 
-    if (this.prediction) {
-      this.state.player.tick(dt)
+    if (window.config.prediction) {
+      this.state.player.tick(timestamp, dt, window.config.prediction)
       values(this.state.projectiles).forEach(projectile => {
-        projectile.tick(dt)
+        projectile.tick(timestamp, dt, window.config.prediction)
       })
     }
 
     const state = cloneDeep(this.state)
     window.setTimeout(() => {
       this.server.send(state)
-    }, 100)
+    }, window.config.clientOWD)
 
     if (this.playing) {
       window.requestAnimationFrame(this.tick.bind(this))
