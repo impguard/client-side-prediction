@@ -8,6 +8,7 @@ import {
   PLAYER_SPEED,
   KEYCODES,
 } from '../constants'
+import Renderer from './Renderer'
 import Server from './Server'
 import Player from './Player'
 import Projectile from './Projectile'
@@ -18,49 +19,15 @@ import { has, values, includes, cloneDeep } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
 
 
-export default class Client {
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
+export default class Client extends Renderer {
   server: Server
-  intervalId: number
-  lastTick: number
-  playing: boolean = false
-
-  state: GameState = {
-    player: new Player(),
-    projectiles: {}
-  }
 
   constructor(canvas: HTMLCanvasElement) {
-    this.canvas = canvas
-    this.ctx = canvas.getContext('2d')
+    super(canvas)
 
     document.addEventListener('keydown', this.keydown.bind(this))
     document.addEventListener('keyup', this.keyup.bind(this))
     document.addEventListener('click', this.click.bind(this))
-  }
-
-  clear() {
-    this.ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
-  }
-
-  reset() {
-    this.clear()
-
-    this.state.player.position.set(
-      GAME_WIDTH / 2,
-      GAME_HEIGHT / 2
-    )
-  }
-
-  start() {
-    this.lastTick = performance.now()
-    this.playing = true
-    window.requestAnimationFrame(this.tick.bind(this))
-  }
-
-  stop() {
-    this.playing = false
   }
 
   keypress(key: number, isPressed: boolean) {
@@ -137,28 +104,7 @@ export default class Client {
     })
   }
 
-  render() {
-    this.clear()
-
-    drawGrid(this.ctx, GAME_WIDTH, GAME_HEIGHT)
-
-    const x = this.state.player.position.x - PLAYER_WIDTH / 2
-    const y = this.state.player.position.y - PLAYER_HEIGHT / 2
-    this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
-
-    values(this.state.projectiles).forEach(projectile => {
-      if (!window.config.prediction && !projectile.valid) return
-
-      const x = projectile.position.x - PROJECTILE_WIDTH / 2
-      const y = projectile.position.y - PROJECTILE_HEIGHT / 2
-      this.ctx.fillRect(x, y, PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
-    })
-  }
-
-  tick(timestamp: number) {
-    const dt = timestamp - this.lastTick
-    this.lastTick = timestamp
-
+  update(dt: number) {
     if (window.config.prediction) {
       this.state.player.tick(dt, window.config.prediction)
       this.state.player.incrementFrame()
@@ -172,11 +118,5 @@ export default class Client {
     window.setTimeout(() => {
       this.server.send(state)
     }, window.config.clientOWD)
-
-    this.render()
-
-    if (this.playing) {
-      window.requestAnimationFrame(this.tick.bind(this))
-    }
   }
 }
