@@ -9,7 +9,7 @@ import {
 import Player from './Player'
 import { GameState } from './types'
 import { drawGrid } from '../util'
-import { values } from 'lodash/fp'
+import { values, pickBy } from 'lodash/fp'
 
 export default class Renderer {
   public canvas: HTMLCanvasElement
@@ -71,6 +71,18 @@ export default class Renderer {
     })
   }
 
+  private clean() {
+    const buffer = 10
+    const filteredProjectiles = pickBy(projectile => (
+      !(projectile.position.x < -PROJECTILE_WIDTH - buffer
+      || projectile.position.x > GAME_WIDTH + PROJECTILE_WIDTH + buffer
+      || projectile.position.y < -PROJECTILE_HEIGHT - buffer
+      || projectile.position.y > GAME_HEIGHT + PROJECTILE_HEIGHT + buffer)
+    ), this.state.projectiles)
+
+    this.state.projectiles = filteredProjectiles
+  }
+
   private tick(timestamp: number) {
     const dt = timestamp - this.lastTick
     this.lastTick = timestamp
@@ -78,6 +90,7 @@ export default class Renderer {
     this.tick(dt)
 
     this.render()
+    this.clean()
 
     if (this.playing) {
       window.requestAnimationFrame(this.tick.bind(this))

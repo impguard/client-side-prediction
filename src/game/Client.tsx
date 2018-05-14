@@ -7,7 +7,7 @@ import Server from './Server'
 import Projectile from './Projectile'
 import { GameState } from './types'
 import { Vector2 } from 'three'
-import { has, values, includes, cloneDeep } from 'lodash/fp'
+import { values, includes, cloneDeep } from 'lodash/fp'
 
 export default class Client extends Renderer {
   public server: Server
@@ -31,16 +31,12 @@ export default class Client extends Renderer {
       this.state.player.position = state.player.position
     }
 
-    values(this.state.projectiles).forEach(projectile => {
-      if (!projectile.valid || has(projectile.id, state.projectiles)) {
-        return
+    values(state.projectiles).forEach(projectile => {
+      if (!this.state.projectiles[projectile.id]) {
+        this.state.projectiles[projectile.id] = projectile
       }
 
-      delete this.state.projectiles[projectile.id]
-    })
-
-    values(state.projectiles).forEach(projectile => {
-      if (window.config.prediction && has(projectile.id, this.state.projectiles)) {
+      if (window.config.prediction) {
         this.state.projectiles[projectile.id].reconcile(projectile.frame, projectile.position)
       } else {
         this.state.projectiles[projectile.id] = projectile

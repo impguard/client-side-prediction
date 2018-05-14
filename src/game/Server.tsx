@@ -1,31 +1,10 @@
-import {
-  GAME_WIDTH,
-  GAME_HEIGHT,
-  PROJECTILE_WIDTH,
-  PROJECTILE_HEIGHT,
-} from '../constants'
 import Renderer from './Renderer'
 import Client from './Client'
 import { GameState } from './types'
-import { pickBy, values, has, cloneDeep } from 'lodash/fp'
+import { values, cloneDeep } from 'lodash/fp'
 
 export default class Server extends Renderer {
   public client: Client
-
-  // TODO: fix
-  public clean() {
-    const filteredProjectiles = pickBy(projectile => {
-      const should = !(projectile.position.x < -PROJECTILE_WIDTH
-      || projectile.position.x > GAME_WIDTH + PROJECTILE_WIDTH
-      || projectile.position.y < -PROJECTILE_HEIGHT
-      || projectile.position.y > GAME_HEIGHT + PROJECTILE_HEIGHT)
-
-      return should
-    }
-    , this.state.projectiles)
-
-    this.state.projectiles = filteredProjectiles
-  }
 
   public connect(client: Client) {
     this.client = client
@@ -36,11 +15,11 @@ export default class Server extends Renderer {
     this.state.player.frame = state.player.frame
 
     values(state.projectiles).forEach(projectile => {
-      if (!projectile.valid && !has(projectile.id, this.state.projectiles)) {
-        this.state.projectiles[projectile.id] = projectile
+      if (!!this.state.projectiles[projectile.id]) {
+        return
       }
 
-      this.state.projectiles[projectile.id].frame = projectile.frame
+      this.state.projectiles[projectile.id] = projectile
     })
   }
 
