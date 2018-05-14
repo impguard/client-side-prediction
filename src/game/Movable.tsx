@@ -8,29 +8,11 @@ interface Move {
 }
 
 export default class Movable {
-  frame: number = 0
-  position: Vector2 = new Vector2(0, 0)
-  history: Move[] = []
+  public frame: number = 0
+  public position: Vector2 = new Vector2(0, 0)
+  public history: Move[] = []
 
-  incrementFrame() {
-    this.frame += 1
-  }
-
-  move(position: Vector2, delta: Vector2, save: boolean = false) {
-    this.position.add(delta)
-
-    if (save) {
-      const move = {
-        frame: this.frame,
-        position: this.position.clone(),
-        delta
-      }
-
-      this.history.push(move)
-    }
-  }
-
-  reconcile(frame: number, position: Vector2) {
+  public reconcile(frame: number, position: Vector2) {
     const newHistory = filter(move => move.frame > frame, this.history)
     this.history = newHistory
 
@@ -39,8 +21,7 @@ export default class Movable {
     }
 
     let currPosition = position
-    for (let i = 0; i < newHistory.length; i++) {
-      const move = newHistory[i]
+    for (const move of newHistory) {
       const newPos = currPosition.clone().add(move.delta)
 
       if (newPos.equals(move.position)) {
@@ -53,5 +34,23 @@ export default class Movable {
     }
 
     this.position = newHistory[newHistory.length - 1].position
+  }
+
+  public incrementFrame() {
+    this.frame += 1
+  }
+
+  protected move(position: Vector2, delta: Vector2, save: boolean = false) {
+    this.position.add(delta)
+
+    if (save) {
+      const move = {
+        frame: this.frame,
+        position: this.position.clone(),
+        delta
+      }
+
+      this.history.push(move)
+    }
   }
 }

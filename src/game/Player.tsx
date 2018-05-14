@@ -16,10 +16,10 @@ interface Controls {
 }
 
 export default class Player extends Movable {
-  controls: Controls = { up: false, down: false, left: false, right: false }
-  speed = PLAYER_SPEED
+  public controls: Controls = { up: false, down: false, left: false, right: false }
+  public speed = PLAYER_SPEED
 
-  tick(dt: number, save: boolean = false) {
+  public update(dt: number, save: boolean = false) {
     const direction = new Vector2(
       (this.controls.left ? -1 : 0) +
       (this.controls.right ? 1 : 0),

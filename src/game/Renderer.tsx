@@ -5,40 +5,33 @@ import {
   PLAYER_HEIGHT,
   PROJECTILE_WIDTH,
   PROJECTILE_HEIGHT,
-  PLAYER_SPEED,
-  KEYCODES,
 } from '../constants'
-import Server from './Server'
 import Player from './Player'
-import Projectile from './Projectile'
 import { GameState } from './types'
 import { drawGrid } from '../util'
-import { Vector2 } from 'three'
-import { has, values, includes, cloneDeep } from 'lodash/fp'
-import { v4 as uuid } from 'uuid'
-
+import { values } from 'lodash/fp'
 
 export default class Renderer {
-  canvas: HTMLCanvasElement
-  ctx: CanvasRenderingContext2D
-  lastTick: number
-  playing: boolean = false
-
-  state: GameState = {
+  public canvas: HTMLCanvasElement
+  public ctx: CanvasRenderingContext2D
+  public state: GameState = {
     player: new Player(),
     projectiles: {}
   }
+
+  private lastTick: number
+  private playing: boolean = false
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
   }
 
-  clear() {
+  public clear() {
     this.ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT)
   }
 
-  reset() {
+  public reset() {
     this.clear()
 
     this.state.player.position.set(
@@ -48,17 +41,21 @@ export default class Renderer {
     this.state.projectiles = {}
   }
 
-  start() {
+  public start() {
     this.lastTick = performance.now()
     this.playing = true
     window.requestAnimationFrame(this.tick.bind(this))
   }
 
-  stop() {
+  public stop() {
     this.playing = false
   }
 
-  render() {
+  protected update(dt: number) {
+    throw new Error('Update is not implemented')
+  }
+
+  private render() {
     this.clear()
 
     drawGrid(this.ctx, GAME_WIDTH, GAME_HEIGHT)
@@ -68,13 +65,13 @@ export default class Renderer {
     this.ctx.fillRect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
 
     values(this.state.projectiles).forEach(projectile => {
-      const x = projectile.position.x - PROJECTILE_WIDTH / 2
-      const y = projectile.position.y - PROJECTILE_HEIGHT / 2
-      this.ctx.fillRect(x, y, PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
+      const px = projectile.position.x - PROJECTILE_WIDTH / 2
+      const py = projectile.position.y - PROJECTILE_HEIGHT / 2
+      this.ctx.fillRect(px, py, PROJECTILE_WIDTH, PROJECTILE_HEIGHT)
     })
   }
 
-  tick(timestamp: number) {
+  private tick(timestamp: number) {
     const dt = timestamp - this.lastTick
     this.lastTick = timestamp
 
@@ -82,12 +79,8 @@ export default class Renderer {
 
     this.render()
 
-    if(this.playing) {
+    if (this.playing) {
       window.requestAnimationFrame(this.tick.bind(this))
     }
-  }
-
-  update(dt: number) {
-    throw new Error('Update is not implemented')
   }
 }

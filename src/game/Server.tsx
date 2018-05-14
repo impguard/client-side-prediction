@@ -1,27 +1,19 @@
 import {
   GAME_WIDTH,
   GAME_HEIGHT,
-  PLAYER_WIDTH,
-  PLAYER_HEIGHT,
   PROJECTILE_WIDTH,
   PROJECTILE_HEIGHT,
-  PLAYER_SPEED,
-  KEYCODES,
 } from '../constants'
 import Renderer from './Renderer'
 import Client from './Client'
-import Player from './Player'
-import Projectile from './Projectile'
-import { drawGrid } from '../util'
 import { GameState } from './types'
-import { Vector2 } from 'three'
-import { pickBy, values, keys, has, cloneDeep } from 'lodash/fp'
-
+import { pickBy, values, has, cloneDeep } from 'lodash/fp'
 
 export default class Server extends Renderer {
-  client: Client
+  public client: Client
 
-  clean() {
+  // TODO: fix
+  public clean() {
     const filteredProjectiles = pickBy(projectile => {
       const should = !(projectile.position.x < -PROJECTILE_WIDTH
       || projectile.position.x > GAME_WIDTH + PROJECTILE_WIDTH
@@ -35,11 +27,11 @@ export default class Server extends Renderer {
     this.state.projectiles = filteredProjectiles
   }
 
-  connect(client: Client) {
+  public connect(client: Client) {
     this.client = client
   }
 
-  send(state: GameState) {
+  public send(state: GameState) {
     this.state.player.controls = state.player.controls
     this.state.player.frame = state.player.frame
 
@@ -52,11 +44,11 @@ export default class Server extends Renderer {
     })
   }
 
-  update(dt: number) {
-    this.state.player.tick(dt)
+  protected update(dt: number) {
+    this.state.player.update(dt)
     values(this.state.projectiles).forEach(projectile => {
       projectile.setValid()
-      projectile.tick(dt)
+      projectile.update(dt)
     })
 
     const serverState = cloneDeep(this.state)

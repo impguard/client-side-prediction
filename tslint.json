@@ -1,0 +1,20 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended",
+    "tslint-react"
+  ],
+  "rules": {
+    "max-line-length": {
+      "options": [120]
+    },
+    "semicolon": [true, "never"],
+    "quotemark" : [true, "single", "jsx-double"],
+    "interface-name": false,
+    "trailing-comma": false,
+    "object-literal-sort-keys": false,
+    "arrow-parens": false,
+    "ordered-imports": false,
+    "no-unused-variable": true
+  }
+}
