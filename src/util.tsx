@@ -5,6 +5,8 @@ export const drawGrid = (context: CanvasRenderingContext2D,
                          height: number,
                          spacing: number = 100) => {
 
+  context.beginPath()
+
   for (let x = 0; x < width; x += spacing) {
     context.moveTo(x, 0)
     context.lineTo(x, height)
