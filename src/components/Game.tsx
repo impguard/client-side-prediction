@@ -11,6 +11,7 @@ declare global {
       serverOWD: number
       clientOWD: number
       prediction: boolean
+      reconciliation: boolean
     }
   }
 }
@@ -26,9 +27,10 @@ class Game extends React.Component {
     super(props)
 
     window.config = {
-      clientOWD: 500,
-      serverOWD: 500,
+      clientOWD: 50,
+      serverOWD: 50,
       prediction: true,
+      reconciliation: false,
     }
 
     this.p1Canvas = React.createRef()

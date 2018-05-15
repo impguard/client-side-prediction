@@ -21,10 +21,13 @@ export default class Renderer {
 
   private lastTick: number
   private playing: boolean = false
+  private boundTick: (timestamp: number) => void
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
     this.ctx = canvas.getContext('2d')
+
+    this.boundTick = this.tick.bind(this)
   }
 
   public clear() {
@@ -44,7 +47,7 @@ export default class Renderer {
   public start() {
     this.lastTick = performance.now()
     this.playing = true
-    window.requestAnimationFrame(this.tick.bind(this))
+    window.requestAnimationFrame(this.boundTick)
   }
 
   public stop() {
@@ -75,13 +78,13 @@ export default class Renderer {
     const dt = timestamp - this.lastTick
     this.lastTick = timestamp
 
-    this.tick(dt)
+    this.update(dt)
 
     this.render()
     this.clean()
 
     if (this.playing) {
-      window.requestAnimationFrame(this.tick.bind(this))
+      window.requestAnimationFrame(this.boundTick)
     }
   }
 

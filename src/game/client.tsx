@@ -26,7 +26,7 @@ export default class Client extends Renderer {
   }
 
   public send(state: GameState) {
-    if (window.config.prediction) {
+    if (window.config.reconciliation) {
       this.state.player.reconcile(state.player.frame, state.player.position)
     } else {
       this.state.player.position = state.player.position
@@ -44,7 +44,7 @@ export default class Client extends Renderer {
         this.state.projectiles[projectile.id] = projectile
       }
 
-      if (window.config.prediction) {
+      if (window.config.reconciliation) {
         this.state.projectiles[projectile.id].deleted = projectile.deleted
         this.state.projectiles[projectile.id].reconcile(projectile.frame, projectile.position)
       } else {
@@ -55,10 +55,10 @@ export default class Client extends Renderer {
 
   protected update(dt: number) {
     if (window.config.prediction) {
-      this.state.player.update(dt, window.config.prediction)
+      this.state.player.update(dt, window.config.reconciliation)
       this.state.player.incrementFrame()
       values(this.state.projectiles).forEach(projectile => {
-        projectile.update(dt, window.config.prediction)
+        projectile.update(dt, window.config.reconciliation)
         projectile.incrementFrame()
       })
     }
