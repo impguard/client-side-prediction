@@ -27,10 +27,11 @@ class Game extends React.Component {
     super(props)
 
     window.config = {
+      refreshRate: 16,
       clientOWD: 50,
       serverOWD: 50,
       prediction: true,
-      reconciliation: false,
+      reconciliation: true,
     }
 
     this.p1Canvas = React.createRef()

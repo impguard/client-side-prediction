@@ -19,9 +19,8 @@ export default class Renderer {
     projectiles: {}
   }
 
-  private lastTick: number
-  private playing: boolean = false
   private boundTick: (timestamp: number) => void
+  private id: number
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -45,13 +44,15 @@ export default class Renderer {
   }
 
   public start() {
-    this.lastTick = performance.now()
-    this.playing = true
-    window.requestAnimationFrame(this.boundTick)
+    this.id = window.setInterval(
+      this.boundTick,
+      window.config.refreshRate,
+      window.config.refreshRate
+    )
   }
 
   public stop() {
-    this.playing = false
+    window.clearInterval(this.id)
   }
 
   protected update(dt: number) {
@@ -74,18 +75,11 @@ export default class Renderer {
     })
   }
 
-  private tick(timestamp: number) {
-    const dt = timestamp - this.lastTick
-    this.lastTick = timestamp
-
+  private tick(dt: number) {
     this.update(dt)
 
     this.render()
     this.clean()
-
-    if (this.playing) {
-      window.requestAnimationFrame(this.boundTick)
-    }
   }
 
   private clean() {
