@@ -8,6 +8,7 @@ declare global {
     client: Client
     server: Server
     config: {
+      refreshRate: number
       serverOWD: number
       clientOWD: number
       prediction: boolean

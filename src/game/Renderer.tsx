@@ -15,6 +15,7 @@ export default class Renderer {
   public canvas: HTMLCanvasElement
   public ctx: CanvasRenderingContext2D
   public state: GameState = {
+    frame: 0,
     player: new Player(),
     projectiles: {}
   }
@@ -55,7 +56,7 @@ export default class Renderer {
     window.clearInterval(this.id)
   }
 
-  protected update(dt: number) {
+  protected update(dt: number, frame: number) {
     throw new Error('Update is not implemented')
   }
 
@@ -76,7 +77,8 @@ export default class Renderer {
   }
 
   private tick(dt: number) {
-    this.update(dt)
+    this.state.frame += 1
+    this.update(dt, this.state.frame)
 
     this.render()
     this.clean()

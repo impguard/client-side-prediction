@@ -33,8 +33,8 @@ export default class Projectile extends Movable {
     this.deleted = !isInPlay
   }
 
-  public update(dt: number, save: boolean = false) {
+  public update(dt: number, frame: number, save: boolean = false) {
     const delta = this.direction.clone().multiplyScalar(PROJECTILE_SPEED * dt)
-    this.move(this.position, delta, save)
+    this.move(frame, delta, save)
   }
 }

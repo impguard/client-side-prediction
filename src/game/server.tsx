@@ -12,7 +12,6 @@ export default class Server extends Renderer {
 
   public send(state: GameState) {
     this.state.player.controls = state.player.controls
-    this.state.player.frame = state.player.frame
 
     values(state.projectiles).forEach(projectile => {
       const isFound = !!this.state.projectiles[projectile.id]
@@ -26,10 +25,10 @@ export default class Server extends Renderer {
     })
   }
 
-  protected update(dt: number) {
-    this.state.player.update(dt)
+  protected update(dt: number, frame: number) {
+    this.state.player.update(dt, frame)
     values(this.state.projectiles).forEach(projectile => {
-      projectile.update(dt)
+      projectile.update(dt, frame)
       projectile.updateDelete()
     })
 
