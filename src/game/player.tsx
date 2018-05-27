@@ -29,6 +29,10 @@ export default class Player extends Movable {
 
     const delta = direction.normalize().multiplyScalar(this.speed * dt)
     this.move(frame, delta, save)
+  }
+
+  protected move(frame: number, delta: Vector2, save: boolean = false) {
+    super.move(frame, delta, save)
 
     this.position.clamp(
       new Vector2(PLAYER_WIDTH / 2, PLAYER_HEIGHT / 2),

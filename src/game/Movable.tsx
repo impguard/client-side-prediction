@@ -18,19 +18,11 @@ export default class Movable {
       return
     }
 
-    let currPosition = position
+    this.position = position
     for (const move of this.history) {
-      const newPos = currPosition.clone().add(move.delta)
-
-      if (newPos.equals(move.position)) {
-        break
-      }
-
-      move.position = newPos
-      currPosition = move.position
+      this.move(move.frame, move.delta)
+      move.position = this.position
     }
-
-    this.position = this.history[this.history.length - 1].position
   }
 
   protected move(frame: number, delta: Vector2, save: boolean = false) {

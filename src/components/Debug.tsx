@@ -34,6 +34,7 @@ class Debug extends React.Component<{}, DebugState> {
         <div>Server Frame: {this.state.serverFrame}</div>
         <div>Client Position: {vectorToString(this.state.clientPosition)}</div>
         <div>Server Position: {vectorToString(this.state.serverPosition)}</div>
+        <input type="checkbox" />
       </div>
     )
   }

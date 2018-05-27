@@ -29,7 +29,6 @@ module.exports = {
     path: path.resolve(__dirname, 'docs'),
   },
   plugins: [
-    new CleanWebpackPlugin(['docs']),
     new HtmlWebpackPlugin({
       title: 'Client Side Prediction'
     }),
