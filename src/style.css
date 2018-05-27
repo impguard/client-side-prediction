@@ -12,3 +12,10 @@ html, body {
   font: 18px 'Courier New';
   margin: 15px;
 }
+
+.debug {
+  position: fixed;
+  right: 15px;
+  top: 15px;
+  font: 12px 'Courier New';
+}

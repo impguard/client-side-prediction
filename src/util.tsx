@@ -1,4 +1,5 @@
 import { GAME_WIDTH, GAME_HEIGHT } from './constants'
+import { Vector2 } from 'three'
 
 export const drawGrid = (context: CanvasRenderingContext2D,
                          width: number,
@@ -19,4 +20,8 @@ export const drawGrid = (context: CanvasRenderingContext2D,
 
   context.strokeStyle = 'black'
   context.stroke()
+}
+
+export const vectorToString = (vector: Vector2) => {
+  return `(${Math.round(vector.x)}, ${Math.round(vector.y)})`
 }

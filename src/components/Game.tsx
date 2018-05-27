@@ -2,6 +2,7 @@ import * as React from 'react'
 import { GAME_HEIGHT, GAME_WIDTH } from '../constants'
 import Client from '../game/Client'
 import Server from '../game/Server'
+import Debug from './Debug'
 
 declare global {
   interface Window {
@@ -81,6 +82,7 @@ class Game extends React.Component {
           width={GAME_WIDTH}
           height={GAME_HEIGHT}
         />
+        <Debug />
       </div>
     )
   }
