@@ -9,6 +9,7 @@ declare global {
     server: Server
     config: {
       refreshRate: number
+      buffer: number
       serverOWD: number
       clientOWD: number
       prediction: boolean
@@ -29,6 +30,7 @@ class Game extends React.Component {
 
     window.config = {
       refreshRate: 16,
+      buffer: 20,
       clientOWD: 50,
       serverOWD: 50,
       prediction: true,
@@ -54,6 +56,9 @@ class Game extends React.Component {
 
     this.server.reset()
     this.server.start()
+
+    const rtt = (window.config.clientOWD + window.config.serverOWD) / 2
+    this.client.state.frame = Math.ceil(rtt / window.config.refreshRate + window.config.buffer)
 
     this.client.reset()
     this.client.start()
