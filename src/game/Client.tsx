@@ -9,6 +9,7 @@ import { GameState } from './types'
 import { Vector2 } from 'three'
 import { values, includes, cloneDeep } from 'lodash/fp'
 import { v4 as uuid } from 'uuid'
+import { frameDelta } from '../util'
 
 export default class Client extends Renderer {
   public server: Server
@@ -18,7 +19,7 @@ export default class Client extends Renderer {
 
     document.addEventListener('keydown', this.keydown.bind(this))
     document.addEventListener('keyup', this.keyup.bind(this))
-    document.addEventListener('click', this.click.bind(this))
+    canvas.addEventListener('click', this.click.bind(this))
   }
 
   public connect(server: Server) {
@@ -26,6 +27,8 @@ export default class Client extends Renderer {
   }
 
   public send(state: GameState) {
+    this.state.frame += frameDelta(this.state.frame, state.frame)
+
     if (window.config.reconciliation) {
       this.state.player.reconcile(state.frame, state.player.position)
     } else {

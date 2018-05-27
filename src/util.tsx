@@ -25,3 +25,12 @@ export const drawGrid = (context: CanvasRenderingContext2D,
 export const vectorToString = (vector: Vector2) => {
   return `(${Math.round(vector.x)}, ${Math.round(vector.y)})`
 }
+
+export const frameDelta = (clientFrame: number, serverFrame: number) => {
+  const rtt = (window.config.clientOWD + window.config.serverOWD) / window.config.refreshRate
+  const htt = rtt / 2
+  const delta = htt + window.config.buffer
+  const result = Math.ceil(delta - Math.max(clientFrame - serverFrame, 0) + htt)
+
+  return result
+}
