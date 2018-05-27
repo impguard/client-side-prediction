@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Vector2 } from 'three'
 import { vectorToString } from '../util'
+import { PLAYER_SPEED } from '../constants'
 
 interface DebugState {
   clientFrame: number
@@ -12,6 +13,7 @@ interface DebugState {
   serverOWD: number
   clientPosition: Vector2
   serverPosition: Vector2
+  speedhack: boolean
 }
 
 class Debug extends React.Component<{}, DebugState> {
@@ -27,6 +29,7 @@ class Debug extends React.Component<{}, DebugState> {
       serverFrame: 0,
       clientPosition: new Vector2(0, 0),
       serverPosition: new Vector2(0, 0),
+      speedhack: false,
       buffer: window.config.buffer,
       clientOWD: window.config.clientOWD,
       serverOWD: window.config.serverOWD,
@@ -47,6 +50,12 @@ class Debug extends React.Component<{}, DebugState> {
         reconciliation: false
       })
       window.config.reconciliation = false
+    }
+
+    if (name === 'speedhack') {
+      const speed = PLAYER_SPEED * (checked ? 3 : 1)
+      window.client.state.player.speed = speed
+      this.setState({ speedhack: checked })
     }
 
     (window.config as any)[name] = checked
@@ -120,6 +129,16 @@ class Debug extends React.Component<{}, DebugState> {
               type="checkbox"
               name="reconciliation"
               checked={this.state.reconciliation}
+              onChange={this.boundHandleCheck}
+            />
+          </label>
+          <br />
+          <label>
+            Speed Hack:
+            <input
+              type="checkbox"
+              name="speedhack"
+              checked={this.state.speedhack}
               onChange={this.boundHandleCheck}
             />
           </label>
